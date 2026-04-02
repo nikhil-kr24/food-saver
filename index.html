@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>FoodSaver – Connecting Donors with NGOs</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    /* ---- Hero ---- */
+    .hero {
+      min-height: calc(100vh - 68px);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      gap: 60px;
+      padding: 60px 5%;
+      background:
+        radial-gradient(ellipse 60% 50% at 70% 50%, rgba(82,183,136,0.12) 0%, transparent 70%),
+        var(--cream);
+    }
+    .hero-text h1 { color: var(--green-dark); margin-bottom: 18px; }
+    .hero-text h1 em {
+      font-style: normal;
+      color: var(--green-mid);
+      position: relative;
+    }
+    .hero-text h1 em::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: 2px;
+      width: 100%; height: 4px;
+      background: var(--amber);
+      border-radius: 4px;
+      opacity: 0.7;
+    }
+    .hero-text p {
+      font-size: 1.05rem;
+      margin-bottom: 32px;
+      max-width: 480px;
+      color: var(--text-mid);
+      line-height: 1.7;
+    }
+    .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; }
+
+    .hero-visual {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .hero-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 22px;
+      transition: var(--transition);
+    }
+    .hero-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .hero-card:nth-child(1) { grid-column: 1 / -1; background: var(--green-dark); color: var(--white); }
+    .hero-card:nth-child(1) p { color: rgba(255,255,255,0.7); font-size: 0.88rem; margin-top: 8px; }
+    .hero-card-num {
+      font-family: var(--font-display);
+      font-size: 2.4rem;
+      color: var(--amber);
+    }
+    .hero-card h4 { color: var(--white); font-size: 0.9rem; }
+    .hero-card-icon { font-size: 2rem; margin-bottom: 12px; }
+    .hero-card .small-num {
+      font-family: var(--font-display);
+      font-size: 1.8rem;
+      color: var(--green-mid);
+    }
+
+    /* ---- How It Works ---- */
+    .how-section {
+      padding: 80px 5%;
+      background: var(--white);
+    }
+    .how-section .section-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--green-light);
+      margin-bottom: 10px;
+    }
+    .how-section h2 { color: var(--green-dark); margin-bottom: 48px; }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+    }
+    .step-card {
+      padding: 28px;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--border);
+      position: relative;
+    }
+    .step-num {
+      position: absolute;
+      top: -16px; left: 24px;
+      width: 36px; height: 36px;
+      background: var(--green-mid);
+      color: var(--white);
+      border-radius: 50%;
+      display: grid; place-items: center;
+      font-weight: 700; font-size: 0.9rem;
+      font-family: var(--font-display);
+    }
+    .step-card .step-icon { font-size: 2rem; margin: 8px 0 14px; }
+    .step-card h3 { margin-bottom: 8px; color: var(--green-dark); }
+    .step-card p  { font-size: 0.9rem; }
+
+    /* ---- Roles Section ---- */
+    .roles-section { padding: 80px 5%; }
+    .roles-section h2 { color: var(--green-dark); text-align: center; margin-bottom: 40px; }
+    .roles-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 860px;
+      margin: 0 auto;
+    }
+    .role-card {
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      border: 2px solid transparent;
+      transition: var(--transition);
+    }
+    .role-card.donor-card {
+      background: var(--amber-light);
+      border-color: rgba(244, 162, 97, 0.4);
+    }
+    .role-card.ngo-card {
+      background: var(--green-pale);
+      border-color: rgba(82, 183, 136, 0.4);
+    }
+    .role-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+    .role-card .role-icon { font-size: 2.4rem; }
+    .role-card h3 { color: var(--green-dark); font-size: 1.3rem; }
+    .role-card p  { font-size: 0.9rem; }
+    .role-card ul { display: flex; flex-direction: column; gap: 8px; }
+    .role-card ul li {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 0.88rem; color: var(--text-mid);
+    }
+    .role-card ul li::before { content: '✓'; color: var(--green-mid); font-weight: 700; }
+
+    /* ---- Footer ---- */
+    footer {
+      background: var(--green-dark);
+      color: rgba(255,255,255,0.65);
+      text-align: center;
+      padding: 28px 5%;
+      font-size: 0.88rem;
+    }
+    footer strong { color: var(--amber); }
+
+    @media (max-width: 768px) {
+      .hero { grid-template-columns: 1fr; min-height: auto; padding-top: 40px; }
+      .steps-grid { grid-template-columns: 1fr; }
+      .roles-grid  { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="main-nav"></nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-text">
+    <h1>Share Food,<br/>Spread <em>Kindness</em></h1>
+    <p>
+      FoodSaver connects generous food donors with NGOs who can put
+      surplus food to good use. Together, we reduce waste and fight hunger.
+    </p>
+    <div class="hero-cta">
+      <a href="login.html?role=donor" class="btn btn-amber">
+        🍱 I Want to Donate
+      </a>
+      <a href="login.html?role=ngo" class="btn btn-outline">
+        🏥 I'm an NGO
+      </a>
+    </div>
+  </div>
+
+  <div class="hero-visual" id="hero-stats">
+    <div class="hero-card">
+      <div class="hero-card-icon">🌍</div>
+      <div class="hero-card-num" id="stat-total">0</div>
+      <h4>Total Donations</h4>
+      <p>Food items listed on the platform</p>
+    </div>
+    <div class="hero-card">
+      <div class="hero-card-icon">✅</div>
+      <div class="small-num" id="stat-available">0</div>
+      <p style="color:var(--text-mid); font-size:0.85rem; margin-top:4px;">Available Now</p>
+    </div>
+    <div class="hero-card">
+      <div class="hero-card-icon">🤝</div>
+      <div class="small-num" id="stat-claimed">0</div>
+      <p style="color:var(--text-mid); font-size:0.85rem; margin-top:4px;">Meals Claimed</p>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <div class="section-label">Simple Process</div>
+  <h2>How It Works</h2>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <div class="step-icon">📝</div>
+      <h3>Register Your Role</h3>
+      <p>Sign up as a Donor (restaurant, home, event) or as an NGO that distributes food to those in need.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <div class="step-icon">🍛</div>
+      <h3>Post Surplus Food</h3>
+      <p>Donors list available food with details — type, quantity, expiry time, and pickup location.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <div class="step-icon">🚚</div>
+      <h3>NGO Claims & Collects</h3>
+      <p>NGOs browse listings, claim what they can use, and coordinate with the donor for pickup.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ROLES -->
+<section class="roles-section">
+  <h2>Choose Your Role</h2>
+  <div class="roles-grid">
+    <div class="role-card donor-card">
+      <div class="role-icon">🍱</div>
+      <h3>Food Donor</h3>
+      <p>Restaurants, canteens, households, and events with surplus food.</p>
+      <ul>
+        <li>List food donations easily</li>
+        <li>Add quantity & expiry info</li>
+        <li>Share your contact number</li>
+        <li>Track your donations</li>
+      </ul>
+      <a href="login.html?role=donor" class="btn btn-amber">Join as Donor →</a>
+    </div>
+    <div class="role-card ngo-card">
+      <div class="role-icon">🏥</div>
+      <h3>NGO / Charity</h3>
+      <p>Organizations that distribute food to communities in need.</p>
+      <ul>
+        <li>Browse all available food</li>
+        <li>Search & filter listings</li>
+        <li>Claim and manage pickups</li>
+        <li>Contact donors directly</li>
+      </ul>
+      <a href="login.html?role=ngo" class="btn btn-primary">Join as NGO →</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  Made with ❤️ to reduce food waste · <strong>FoodSaver</strong> &copy; 2025
+</footer>
+
+<script src="app.js"></script>
+<script>
+  // Populate live stats from localStorage
+  document.addEventListener('DOMContentLoaded', () => {
+    const stats = FoodSaver.getStats();
+    document.getElementById('stat-total').textContent     = stats.total;
+    document.getElementById('stat-available').textContent = stats.available;
+    document.getElementById('stat-claimed').textContent   = stats.claimed;
+  });
+</script>
+</body>
+</html>

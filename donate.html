@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Donate Food – FoodSaver</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    .success-banner {
+      display: none;
+      background: var(--green-pale);
+      border: 1px solid rgba(82,183,136,0.4);
+      border-radius: var(--radius-md);
+      padding: 16px 20px;
+      color: var(--green-dark);
+      font-weight: 500;
+      font-size: 0.9rem;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 0;
+    }
+    .success-banner.show { display: flex; }
+
+    .history-header {
+      padding: 40px 5% 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .history-header h2 { color: var(--green-dark); }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="main-nav"></nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-header-text">
+    <h1>Donate Food 🍱</h1>
+    <p>Fill in the details below and we'll connect you with an NGO near you.</p>
+  </div>
+  <a href="food-list.html" class="btn btn-outline">View Food Board →</a>
+</div>
+
+<!-- STATS ROW -->
+<div class="stats-row" id="donor-stats"></div>
+
+<!-- DONATE FORM + SIDEBAR -->
+<div class="donate-layout">
+
+  <!-- FORM -->
+  <div class="form-card">
+    <h2>Food Details</h2>
+    <p class="subtitle">Please be as accurate as possible so NGOs can plan collection.</p>
+
+    <div id="success-banner" class="success-banner">
+      ✅ Your donation has been listed! NGOs can now see it.
+    </div>
+
+    <div class="form-grid" id="donate-form">
+      <div class="form-group">
+        <label>Food Name *</label>
+        <input type="text" id="f-name" placeholder="e.g. Dal Rice, Vegetable Curry"/>
+      </div>
+
+      <div class="form-group">
+        <label>Food Type *</label>
+        <select id="f-type">
+          <option value="">Select type...</option>
+          <option value="cooked">🍛 Cooked Food</option>
+          <option value="raw">🥦 Raw / Vegetables</option>
+          <option value="packaged">📦 Packaged / Sealed</option>
+          <option value="fruits">🍎 Fruits</option>
+          <option value="baked">🍞 Baked Goods</option>
+          <option value="beverages">🥤 Beverages</option>
+          <option value="other">🥡 Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Quantity *</label>
+        <input type="text" id="f-quantity" placeholder="e.g. 10 kg, 50 plates"/>
+      </div>
+
+      <div class="form-group">
+        <label>Serves (approx. people) *</label>
+        <input type="number" id="f-serves" placeholder="e.g. 30" min="1"/>
+      </div>
+
+      <div class="form-group span-2">
+        <label>Pickup Address *</label>
+        <input type="text" id="f-address" placeholder="Full address for pickup"/>
+      </div>
+
+      <div class="form-group">
+        <label>Contact Phone *</label>
+        <input type="tel" id="f-phone" placeholder="+91 98765 43210"/>
+      </div>
+
+      <div class="form-group">
+        <label>Best Before / Expiry *</label>
+        <input type="datetime-local" id="f-expiry"/>
+      </div>
+
+      <div class="form-group span-2">
+        <label>Additional Notes</label>
+        <textarea id="f-notes" placeholder="Allergens, packaging, special instructions..."></textarea>
+      </div>
+
+      <div class="form-group span-2">
+        <button class="btn btn-primary btn-full" onclick="submitDonation()">
+          🌿 List My Donation
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar-card">
+    <h3>🙏 Why Donate?</h3>
+    <p>Your surplus food can feed families in need. Here's how to make your donation count:</p>
+    <div class="tip-list">
+      <div class="tip-item">
+        <div class="tip-icon">⏱️</div>
+        <div class="tip-text">List food as early as possible — NGOs need time to arrange pickup.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">📞</div>
+        <div class="tip-text">Keep your phone accessible after listing. NGOs may call to coordinate.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">📦</div>
+        <div class="tip-text">Pack food securely in containers to maintain hygiene and freshness.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">🗺️</div>
+        <div class="tip-text">Provide a precise address with landmarks for easy navigation.</div>
+      </div>
+      <div class="tip-item">
+        <div class="tip-icon">🌡️</div>
+        <div class="tip-text">Keep cooked food covered and at safe temperature until collection.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MY DONATIONS HISTORY -->
+<div class="history-header">
+  <h2>My Donations</h2>
+  <span id="my-count" class="badge badge-green"></span>
+</div>
+<div class="history-table-wrap" id="history-wrap"></div>
+
+<script src="app.js"></script>
+<script>
+  let session;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    session = FoodSaver.requireAuth('donor');
+    if (!session) return;
+
+    // Set default expiry to 6 hours from now
+    const d = new Date(Date.now() + 6 * 3600 * 1000);
+    document.getElementById('f-expiry').value = d.toISOString().slice(0, 16);
+
+    renderStats();
+    renderHistory();
+  });
+
+  function renderStats() {
+    const all   = FoodSaver.getMyDonations();
+    const avail = all.filter(f => f.status === 'available').length;
+    const claim = all.filter(f => f.status === 'claimed').length;
+
+    document.getElementById('donor-stats').innerHTML = `
+      <div class="stat-card">
+        <div class="stat-num">${all.length}</div>
+        <div class="stat-label">Total Listed</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">${avail}</div>
+        <div class="stat-label">Available</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">${claim}</div>
+        <div class="stat-label">Claimed by NGO</div>
+      </div>
+    `;
+  }
+
+  function renderHistory() {
+    const foods = FoodSaver.getMyDonations();
+    const wrap  = document.getElementById('history-wrap');
+    const count = document.getElementById('my-count');
+    count.textContent = foods.length + ' donations';
+
+    if (!foods.length) {
+      wrap.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-icon">🍽️</div>
+          <h3>No donations yet</h3>
+          <p>List your first food donation using the form above.</p>
+        </div>`;
+      return;
+    }
+
+    wrap.innerHTML = `
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Food Name</th>
+            <th>Type</th>
+            <th>Quantity</th>
+            <th>Serves</th>
+            <th>Expiry</th>
+            <th>Phone</th>
+            <th>Status</th>
+            <th>Listed</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${foods.map(f => `
+            <tr>
+              <td><strong>${f.name}</strong></td>
+              <td>${getFoodEmoji(f.type)} ${f.type}</td>
+              <td>${f.quantity}</td>
+              <td>${f.serves} people</td>
+              <td>${formatDate(f.expiry)} ${formatTime(f.expiry)}</td>
+              <td>${f.phone}</td>
+              <td>
+                <span class="badge ${f.status === 'available' ? 'badge-green' : 'badge-amber'}">
+                  ${f.status === 'available' ? '✅ Available' : '🤝 Claimed'}
+                </span>
+              </td>
+              <td>${timeSince(f.createdAt)}</td>
+              <td>
+                ${f.status === 'available'
+                  ? `<button class="btn btn-danger btn-sm" onclick="deleteDonation('${f.id}')">🗑 Delete</button>`
+                  : `<span style="color:var(--text-light);font-size:0.82rem;">Claimed by ${f.claimedBy || 'NGO'}</span>`
+                }
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>`;
+  }
+
+  function submitDonation() {
+    const name     = document.getElementById('f-name').value.trim();
+    const type     = document.getElementById('f-type').value;
+    const quantity = document.getElementById('f-quantity').value.trim();
+    const serves   = document.getElementById('f-serves').value.trim();
+    const address  = document.getElementById('f-address').value.trim();
+    const phone    = document.getElementById('f-phone').value.trim();
+    const expiry   = document.getElementById('f-expiry').value;
+    const notes    = document.getElementById('f-notes').value.trim();
+
+    if (!name || !type || !quantity || !serves || !address || !phone || !expiry) {
+      showToast('Please fill in all required fields.', 'error');
+      return;
+    }
+
+    FoodSaver.addFood({ name, type, quantity, serves, address, phone, expiry, notes });
+
+    // Reset form
+    ['f-name','f-quantity','f-serves','f-address','f-phone','f-notes'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('f-type').value = '';
+    const d = new Date(Date.now() + 6 * 3600 * 1000);
+    document.getElementById('f-expiry').value = d.toISOString().slice(0, 16);
+
+    document.getElementById('success-banner').classList.add('show');
+    setTimeout(() => document.getElementById('success-banner').classList.remove('show'), 4000);
+
+    showToast('Donation listed successfully!');
+    renderStats();
+    renderHistory();
+  }
+
+  function deleteDonation(id) {
+    showConfirm(
+      'Delete Donation',
+      'Are you sure you want to remove this food listing?',
+      () => {
+        FoodSaver.deleteFood(id);
+        showToast('Donation removed.');
+        renderStats();
+        renderHistory();
+      }
+    );
+  }
+</script>
+</body>
+</html>

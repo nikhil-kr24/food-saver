@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In – FoodSaver</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: 68px 1fr;
+      background:
+        radial-gradient(ellipse 50% 70% at 20% 60%, rgba(82,183,136,0.10) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 50% at 80% 20%, rgba(244,162,97,0.10) 0%, transparent 60%),
+        var(--cream);
+    }
+
+    .auth-page {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 5%;
+    }
+
+    .auth-wrapper {
+      width: 100%;
+      max-width: 900px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      align-items: center;
+    }
+
+    /* Left panel */
+    .auth-left h1 { color: var(--green-dark); margin-bottom: 14px; }
+    .auth-left p  { font-size: 0.98rem; line-height: 1.7; margin-bottom: 24px; }
+    .demo-box {
+      background: var(--green-dark);
+      border-radius: var(--radius-md);
+      padding: 20px 24px;
+      color: rgba(255,255,255,0.8);
+      font-size: 0.85rem;
+    }
+    .demo-box h4 { color: var(--amber); margin-bottom: 12px; font-size: 0.9rem; }
+    .demo-row {
+      display: flex; justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .demo-row:last-child { border-bottom: none; }
+    .demo-row span { color: rgba(255,255,255,0.5); font-size: 0.8rem; }
+    .demo-row strong { color: var(--white); font-size: 0.82rem; font-family: monospace; }
+
+    /* Auth Card */
+    .auth-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 36px;
+      box-shadow: var(--shadow-md);
+    }
+
+    /* Role Selector */
+    .role-selector {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .role-btn {
+      padding: 14px 10px;
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      text-align: center;
+      cursor: pointer;
+      transition: var(--transition);
+      background: var(--white);
+      font-family: var(--font-body);
+    }
+    .role-btn .role-emoji { font-size: 1.5rem; display: block; margin-bottom: 5px; }
+    .role-btn .role-label { font-size: 0.82rem; font-weight: 600; color: var(--text-mid); }
+    .role-btn.selected {
+      border-color: var(--green-mid);
+      background: var(--green-pale);
+    }
+    .role-btn.selected .role-label { color: var(--green-dark); }
+
+    /* Tabs */
+    .auth-tabs {
+      display: flex;
+      border-bottom: 2px solid var(--border);
+      margin-bottom: 24px;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      font-size: 0.92rem;
+      font-weight: 600;
+      color: var(--text-light);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: var(--transition);
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+      font-family: var(--font-body);
+    }
+    .tab-btn.active {
+      color: var(--green-mid);
+      border-bottom-color: var(--green-mid);
+    }
+
+    /* Tab Panes */
+    .tab-pane { display: none; }
+    .tab-pane.active { display: block; }
+
+    /* Form */
+    .auth-form { display: flex; flex-direction: column; gap: 16px; }
+    .auth-form .btn { margin-top: 6px; }
+
+    .divider {
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-light);
+      position: relative;
+      margin: 4px 0;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 40%;
+      height: 1px;
+      background: var(--border);
+    }
+    .divider::before { left: 0; }
+    .divider::after  { right: 0; }
+
+    .error-msg {
+      background: var(--danger-light);
+      color: var(--danger);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 0.85rem;
+      display: none;
+    }
+    .error-msg.show { display: block; }
+
+    @media (max-width: 640px) {
+      .auth-wrapper { grid-template-columns: 1fr; }
+      .auth-left { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar" id="main-nav"></nav>
+
+<!-- AUTH PAGE -->
+<div class="auth-page">
+  <div class="auth-wrapper">
+
+    <!-- Left Info Panel -->
+    <div class="auth-left">
+      <h1>Welcome Back 👋</h1>
+      <p>Join FoodSaver to donate surplus food or help distribute it to communities in need.</p>
+
+      <div class="demo-box">
+        <h4>🔑 Demo Credentials</h4>
+        <div class="demo-row">
+          <span>Donor email</span>
+          <strong>donor@demo.com</strong>
+        </div>
+        <div class="demo-row">
+          <span>NGO email</span>
+          <strong>ngo@demo.com</strong>
+        </div>
+        <div class="demo-row">
+          <span>Password</span>
+          <strong>demo123</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- Auth Card -->
+    <div class="auth-card">
+
+      <!-- Role Selection -->
+      <p style="font-size:0.82rem;font-weight:600;color:var(--text-light);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px;">I am a...</p>
+      <div class="role-selector">
+        <button class="role-btn selected" data-role="donor" onclick="selectRole('donor')">
+          <span class="role-emoji">🍱</span>
+          <span class="role-label">Food Donor</span>
+        </button>
+        <button class="role-btn" data-role="ngo" onclick="selectRole('ngo')">
+          <span class="role-emoji">🏥</span>
+          <span class="role-label">NGO / Charity</span>
+        </button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
+        <button class="tab-btn"        onclick="switchTab('register')">Register</button>
+      </div>
+
+      <!-- LOGIN -->
+      <div class="tab-pane active" id="pane-login">
+        <div id="login-error" class="error-msg"></div>
+        <div class="auth-form">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="login-email" placeholder="you@example.com"/>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="login-password" placeholder="Enter your password"/>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="handleLogin()">
+            Sign In →
+          </button>
+        </div>
+      </div>
+
+      <!-- REGISTER -->
+      <div class="tab-pane" id="pane-register">
+        <div id="reg-error" class="error-msg"></div>
+        <div class="auth-form">
+          <div class="form-group">
+            <label>Full Name / Organisation Name</label>
+            <input type="text" id="reg-name" placeholder="e.g. Rahul Sharma / Hope Foundation"/>
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" id="reg-email" placeholder="you@example.com"/>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="reg-password" placeholder="Minimum 6 characters"/>
+          </div>
+          <button class="btn btn-primary btn-full" onclick="handleRegister()">
+            Create Account →
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+  let currentRole = 'donor';
+
+  // Pre-select role from URL param
+  document.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const role   = params.get('role');
+    if (role === 'ngo') selectRole('ngo');
+
+    // Redirect if already logged in
+    const session = FoodSaver.getSession();
+    if (session) {
+      window.location.href = session.role === 'donor' ? 'donate.html' : 'food-list.html';
+    }
+  });
+
+  function selectRole(role) {
+    currentRole = role;
+    document.querySelectorAll('.role-btn').forEach(b => b.classList.toggle('selected', b.dataset.role === role));
+  }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (i === 0 ? 'login' : 'register') === tab));
+    document.getElementById('pane-login').classList.toggle('active', tab === 'login');
+    document.getElementById('pane-register').classList.toggle('active', tab === 'register');
+  }
+
+  function handleLogin() {
+    const email    = document.getElementById('login-email').value;
+    const password = document.getElementById('login-password').value;
+    const errEl    = document.getElementById('login-error');
+
+    if (!email || !password) {
+      errEl.textContent = 'Please fill in all fields.';
+      errEl.classList.add('show');
+      return;
+    }
+    errEl.classList.remove('show');
+
+    const result = FoodSaver.login(email, password, currentRole);
+    if (!result.ok) {
+      errEl.textContent = result.error;
+      errEl.classList.add('show');
+      return;
+    }
+
+    showToast(`Welcome back, ${result.user.name}!`);
+    setTimeout(() => {
+      window.location.href = result.user.role === 'donor' ? 'donate.html' : 'food-list.html';
+    }, 600);
+  }
+
+  function handleRegister() {
+    const name     = document.getElementById('reg-name').value;
+    const email    = document.getElementById('reg-email').value;
+    const password = document.getElementById('reg-password').value;
+    const errEl    = document.getElementById('reg-error');
+
+    if (!name || !email || !password) {
+      errEl.textContent = 'Please fill in all fields.';
+      errEl.classList.add('show');
+      return;
+    }
+    if (password.length < 6) {
+      errEl.textContent = 'Password must be at least 6 characters.';
+      errEl.classList.add('show');
+      return;
+    }
+    errEl.classList.remove('show');
+
+    const result = FoodSaver.register(name, email, password, currentRole);
+    if (!result.ok) {
+      errEl.textContent = result.error;
+      errEl.classList.add('show');
+      return;
+    }
+
+    showToast(`Account created! Welcome, ${result.user.name}!`);
+    setTimeout(() => {
+      window.location.href = result.user.role === 'donor' ? 'donate.html' : 'food-list.html';
+    }, 800);
+  }
+
+  // Allow pressing Enter to submit
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const activePane = document.querySelector('.tab-pane.active').id;
+      if (activePane === 'pane-login') handleLogin();
+      else handleRegister();
+    }
+  });
+</script>
+</body>
+</html>
